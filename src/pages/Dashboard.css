@@ -1,0 +1,9 @@
+#Dashboard:hover {
+    border-radius: 200px;
+    background-color: #003366;
+}
+
+#Dashboard {
+    border-radius: 200px;
+    background-color: "pink";
+}
