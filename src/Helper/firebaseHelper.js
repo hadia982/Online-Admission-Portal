@@ -153,3 +153,36 @@ export const logout = async () => {
     throw error;
   }
 };
+
+
+
+export const uploadImageToCloudinary = async (file) => {
+    const CLOUD_NAME = "drrr99dz9";
+    const UPLOAD_PRESET = "react_native_uploads";
+
+    try {
+        const data = new FormData();
+        data.append("file", file);
+        data.append("upload_preset", UPLOAD_PRESET);
+
+        const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+            {
+                method: "POST",
+                body: data,
+            }
+        );
+
+        const result = await res.json();
+
+        if (result.secure_url) {
+            return result.secure_url; // 🔥 Cloudinary hosted URL
+        } else {
+            throw new Error(result.error.message || 'Cloudinary upload failed');
+        }
+
+    } catch (err) {
+        console.error("Cloudinary upload failed", err);
+        throw err;
+    }
+};

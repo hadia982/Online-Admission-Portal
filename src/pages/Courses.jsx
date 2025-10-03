@@ -65,7 +65,7 @@ export default function Courses(props) {
                   <td style={{ border: '1px solid #ccc', padding: '10px' }}>$58,000/year</td>
                   <td style={{ border: '1px solid #ccc', padding: '10px' }}><button style={{ backgroundColor: 'rgb(239, 247, 129)', borderRadius: "10px", color: 'rgb(21, 20, 20)', height: 30, marginTop: 10, padding: '10px', display: 'flex', alignItems: 'center' }}>pending</button></td>
                   <td style={{ border: '1px solid #ccc', padding: '10px' }}>Mar 10,2023</td>
-                  <td style={{ border: '1px solid #ccc', padding: '10px', gap: 25, display: "flex", height: 39, cursor: "pointer", justifyContent: "space-between", alignItems: "center" }}><FaEye color="green" /><FaCheck color="green" /><FaTimes color="red" />
+                  <td style={{ border: '1px solid #ccc', padding: '10px', gap: 25, display: "flex", height: 39, cursor: "pointer", justifyContent: "space-between", alignItems: "center" }}><FaEye color="green" />
                   </td>
                 </tr>
                 <tr>

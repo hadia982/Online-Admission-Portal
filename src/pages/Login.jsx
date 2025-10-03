@@ -1,66 +1,118 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { loginWithFBase } from '../Helper/firebaseHelper';
-import { useDispatch } from 'react-redux';
-import { setUser } from '../redux/Slices/HomeDataSlice';
-function Login() {
-    const [Email, setEmail] = useState("admin123@gmail.com");
-    const [Password, setPassword] = useState("123xyz");
+
+import { FaEnvelope, FaLock, FaUniversity, FaUserShield } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/Slices/HomeDataSlice";
+import { Link } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import { loginWithFBase } from "../Helper/firebaseHelper";
+
+const Login = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [role, setRole] = useState("admin"); // 'admin' or 'college'
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
 
-    const completeLogin = async () => {
+        try {
+            // 1. Authenticate user with Firebase Auth
+            const userCredential = await loginWithFBase(email, password);
+            const user = userCredential;
 
-        alert("error")
+            // 2. Determine the collection based on the selected role
+            const collectionName = role === 'admin' ? 'admins' : 'colleges';
+            const docRef = doc(db, collectionName, user.uid);
+            const docSnap = await getDoc(docRef);
 
-        if (Email == "" || Password == "") {
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
 
-            alert("please enter email or Password");
-            return;
+                // 3. For colleges, check if their status is 'approved'
+                if (role === 'college' && userData.status !== 'approved') {
+                    setError('Your registration is pending approval. You cannot log in yet.');
+                    setLoading(false);
+                    return;
+                }
+
+                // 4. Dispatch user data to Redux store
+                dispatch(setUser({ ...userData, role }));
+            } else {
+                setError(`No ${role} profile found for this user.`);
+            }
+
+        } catch (err) {
+            setError("Failed to login. Please check your credentials.");
+            console.error("Login error:", err);
+        } finally {
+            setLoading(false);
         }
-        const userData = await loginWithFBase(Email, Password)
-
-        dispatch(setUser(userData))
-
-
-    }
-
-
-    const navigate = useNavigate();
-
-    const handleLogin = () => {
-
-        navigate("/Dashboard");
     };
-    const handleSignup = () => {
-
-        navigate("/signup")
-    }
-
-
-
 
     return (
-        <div style={{ height: 600, width: 1240, backgroundColor: ' #003366' }}>
-            <Link to="/Login"></Link>
-            <a href="Login"></a>
-            <div style={{ height: 600, width: 500, backgroundColor: "#D9D9D9", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <div style={{ height: 471, width: 277, backgroundColor: "white", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)", marginLeft: 221, marginTop: -7 }}>
-                    <h2 style={{ textAlign: 'center', marginTop: 85 }}>Login</h2>
-                    <p style={{ textAlign: 'center', marginTop: -10 }}>Enter your account details</p>
-                    {/* <form action="login.php" method='post'></form> */}
-                    <input value={Email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="Email" style={{ padding: '10', width: 200, boarderadius: 5, height: 25, marginLeft: 37 }} />
-                    <input value={Password} onChange={(e) => setPassword(e.target.value)} type="text" placeholder="Password" style={{ padding: '10', width: 200, boarderadius: 5, height: 25, marginTop: 13, marginLeft: 37 }} />
-                    <div style={{ float: 'right', marginRight: 143, marginTop: -16, display: 'flex', alignItems: 'center', color: "black", cursor: 'pointer', justifyContent: 'center' }}>
-                        <h5 >Forgot Password</h5></div>
-                    <div style={{ textAlign: "center" }}>
-                        <button onClick={completeLogin} style={{ backgroundColor: ' #003366', borderRadius: 8, width: "70%", height: 40, cursor: "pointer", border: "none", marginTop: "10px" }} >
-                            <h5 onClick={handleLogin} style={{ color: "#fff", fontWeight: "600", fontSize: 14, margin: 0 }} >login </h5>
-                        </button>
-                    </div>                     
-                     <div style={{ float: 'right', marginRight: 123, marginTop: 90, display: 'flex', alignItems: 'center', color: "black", cursor: 'pointer', justifyContent: 'center' }}>
-                        <h5 >Don't have an account</h5></div>
-                    <button onClick={handleSignup}  style={{ width: 66, height: 23, backgroundColor: ' #003366', position: 'absolute', marginTop: 110, marginLeft: 170, padding: '10px', textAlign: 'center', display: 'flex', alignContent: 'center', alignItems: 'center', borderRadius: 5, color: "white", cursor: 'pointer' }}> signup</button>
+        <div style={styles.container}>
+            <div style={styles.loginBox}>
+                <h2 style={styles.title}>
+                    {role === 'admin' ? <FaUserShield style={{ marginRight: "10px" }} /> : <FaUniversity style={{ marginRight: "10px" }} />}
+                    {role === 'admin' ? 'Admin' : 'College'} Login
+                </h2>
+                <p style={styles.subtitle}>Welcome back! Please enter your credentials.</p>
+
+
+                <form onSubmit={handleSubmit}>
+                    {/* Role Selector */}
+                    <select 
+                        value={role} 
+                        onChange={(e) => setRole(e.target.value)} 
+                        style={styles.input}
+                    >
+                        <option value="admin">Login as Admin</option>
+                        <option value="college">Login as College</option>
+                    </select>
+
+                    {/* Email Input */}
+                    <div style={styles.inputGroup}>
+                        <FaEnvelope style={styles.icon} />
+                        <input
+                            type="email"
+                            placeholder="email@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={styles.inputField}
+                            required
+                        />
+                    </div>
+
+                    {/* Password Input */}
+                    <div style={styles.inputGroup}>
+                        <FaLock style={styles.icon} />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={styles.inputField}
+                            required
+                        />
+                    </div>
+
+                    {error && <p style={styles.errorText}>{error}</p>}
+
+                    <button type="submit" style={styles.button}>
+                        Login
+                    </button>
+                </form>
+
+                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                    <p>Don't have a college account? 
+                        <Link to="/Clgsignup" style={styles.link}> Register here</Link>
+                    </p>
                 </div>
             </div>
             <div style={{ height: 432, width: 611, backgroundColor: " #3b72aaff", marginLeft: 500, marginTop: -538, padding: '20px' }}>

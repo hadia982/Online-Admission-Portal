@@ -64,7 +64,13 @@ export default function Colleges(props) {
                                         <td style={{ border: '1px solid #ccc', padding: '10px' }}>
                                             <button style={{ backgroundColor: 'rgb(239, 247, 129)', borderRadius: "10px", color: 'rgb(21, 20, 20)', height: 30, marginTop: 10, padding: '10px', display: 'flex', alignItems: 'center' }}>{clg.status}</button></td>
                                         <td style={{ border: '1px solid #ccc', padding: '10px' }}>{clg.joinDate}</td>
-                                        <td style={{ border: '1px solid #ccc', padding: '10px', gap: 25, display: "flex", height: 39, cursor: "pointer", justifyContent: "space-between", alignItems: "center" }}><FaCheck color="green" /><FaTimes color="red" />
+                                        <td style={{ border: '1px solid #ccc', padding: '10px', gap: 25, display: "flex", height: 39, cursor: "pointer", justifyContent: "space-between", alignItems: "center" }}><button style={{
+                                            backgroundColor: "#4CAF50", color: "white", padding: "8px 16px", border: "none", borderRadius: "5px", cursor: "pointer", fontSize: "14px",
+                                        }}
+                                            onClick={() => alert("Create Account clicked!")}
+                                        >
+                                            Create Account
+                                        </button><FaTimes color="red" />
                                         </td>
 
                                     </tr>
