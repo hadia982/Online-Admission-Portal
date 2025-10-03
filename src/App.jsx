@@ -48,6 +48,7 @@ import CourseStatus from "./Pages/CourseStatus";
 import Addnewcourse from "./Pages/Addnewcourse";
 import Addnewstory from "./Pages/Addnewstory";
 import { useSelector } from "react-redux";
+import RegForm from "./Pages/RegForm";
 
 
 
@@ -79,6 +80,8 @@ export default function App() {
               <Route path="/CourseStatus" element={<CourseStatus />} />
               <Route path="/Addnewcourse" element={<Addnewcourse />} />
               <Route path="/Addnewstory" element={<Addnewstory />} />
+                            <Route path="/RegForm" element={<RegForm />} />
+
             </Routes>
           </div>
         </div>

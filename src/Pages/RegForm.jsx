@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { db } from "./firebase"; // firebase config import
+import "../../firebase";
+ // firebase config import
 import { collection, addDoc } from "firebase/firestore";
 
 const CollegeRegister = () => {
