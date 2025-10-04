@@ -34,7 +34,8 @@ const homeSlice = createSlice({
 export const {
     setUser,
     setName,
-    setRole
+    setRole,
+    setLoading
 
 } = homeSlice.actions;
 

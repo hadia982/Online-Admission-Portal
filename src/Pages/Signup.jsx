@@ -23,12 +23,11 @@ function Signup() {
     const dispatch = useDispatch()
 
     const completeSignup = async () => {
-        alert("hello")
         if (fName == "" || lName == "" || Email == "" || Password == "") {
-            alert("please fill all the fields");
+            alert("Please fill all the fields");
             return;
         }
-        const userData = await handleSignUp(Email, Password, { role: "admin", fName: fName, lName: lName })
+        const userData = await handleSignUp(Email, Password, { role: "college", fName: fName, lName: lName })
         if (userData?.uid) {
             dispatch(setUser(userData));
         }
@@ -59,6 +58,13 @@ function Signup() {
                     <div style={{ float: 'right', marginRight: 123, marginTop: 100, display: 'flex', alignItems: 'center', color: "black", cursor: 'pointer', justifyContent: 'center' }}>
                         <h5 >Already have an account</h5></div>
                     <button onClick={handleSignup} style={{ width: 66, height: 23, backgroundColor: ' #003366', position: 'absolute', marginTop: 115, marginLeft: 170, padding: '10px', textAlign: 'center', display: 'flex', alignContent: 'center', alignItems: 'center', borderRadius: 5, color: "white", cursor: 'pointer' }}> signin</button>
+                    
+                    {/* Back to college login link */}
+                    <div style={{ marginTop: 140, textAlign: 'center' }}>
+                        <Link to="/" style={{ color: '#003366', textDecoration: 'none', fontSize: '12px' }}>
+                            ← Back to College Login
+                        </Link>
+                    </div>
                 </div>
             </div>
             <div style={{ height: 432, width: 611, backgroundColor: "rgb(83 149 18)", marginLeft: 500, marginTop: -538, padding: '20px' }}>

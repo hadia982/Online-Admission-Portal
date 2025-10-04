@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 🔹 Users collection
+    match /users/{userId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 🔹 Colleges collection (FIXED)
+    match /colleges/{collegeId} {
+      // Allow authenticated users to create their own college document
+      // The document ID must match their authentication UID
+      allow create: if request.auth != null && request.auth.uid == collegeId;
+      
+      // Allow colleges to read their own data (regardless of status)
+      allow read: if request.auth != null && request.auth.uid == collegeId;
+      
+      // Allow colleges to update their own data (for profile updates)
+      allow update: if request.auth != null && request.auth.uid == collegeId;
+      
+      // Allow admins to read/write any college document (when you implement admin functionality)
+      // allow read, update: if request.auth != null && 
+      //   exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+      //   get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // 🔹 Courses collection (NEW)
+    match /courses/{courseId} {
+      // Allow colleges to create courses (document must have collegeId matching auth uid)
+      // Use request.resource.data for create operation since document doesn't exist yet
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.collegeId;
+      
+      // Allow authenticated users to read courses (for dashboard queries)
+      // This allows both individual reads and query reads with where clauses
+      allow read: if request.auth != null;
+      
+      // Allow colleges to update their own courses
+      // Use resource.data for update operation since document exists
+      allow update: if request.auth != null && 
+        request.auth.uid == resource.data.collegeId;
+      
+      // Allow colleges to delete their own courses
+      // Use resource.data for delete operation since document exists
+      allow delete: if request.auth != null && 
+        request.auth.uid == resource.data.collegeId;
+    }
+
+    // 🔹 Applications collection (NEW)
+    match /applications/{applicationId} {
+      // Allow anyone to create applications (students applying)
+      // Use request.resource.data for create operation since document doesn't exist yet
+      allow create: if true;
+      
+      // Allow authenticated users to read applications (for dashboard queries)
+      // This allows both individual reads and query reads with where clauses
+      allow read: if request.auth != null;
+      
+      // Allow colleges to update application status
+      // Use resource.data for update operation since document exists
+      allow update: if request.auth != null && 
+        request.auth.uid == resource.data.collegeId;
+    }
+
+    // 🔹 Admissions collection (LEGACY - keeping for compatibility)
+    match /admissions/{admissionId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // 🔹 Public data (if needed)
+    match /public/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

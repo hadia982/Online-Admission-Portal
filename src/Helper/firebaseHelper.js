@@ -14,6 +14,7 @@ import {
     getDocs,
     setDoc,
     updateDoc,
+    serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase"; // make sure you export both db and auth in firebase.js
 
@@ -153,3 +154,105 @@ export const logout = async () => {
     throw error;
   }
 };
+
+//--------------------------------
+// 🔹 College-specific Services
+//--------------------------------
+
+// ✅ Get college data by UID - Fixed to use direct document access
+export const getCollegeByUID = async (uid) => {
+  try {
+    const docRef = doc(db, "colleges", uid);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    } else {
+      console.log("No college document found for UID:", uid);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting college data:", error);
+    throw error;
+  }
+};
+
+// ✅ Update college status (for admin use)
+export const updateCollegeStatus = async (collegeId, status) => {
+  try {
+    const docRef = doc(db, "colleges", collegeId);
+    await updateDoc(docRef, {
+      status: status,
+      updatedAt: serverTimestamp()
+    });
+    console.log("College status updated successfully");
+  } catch (error) {
+    console.error("Error updating college status:", error);
+    throw error;
+  }
+};
+
+// ✅ Get all colleges (for admin dashboard)
+export const getAllColleges = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "colleges"));
+    const colleges = [];
+    querySnapshot.forEach((doc) => {
+      colleges.push({ id: doc.id, ...doc.data() });
+    });
+    return colleges;
+  } catch (error) {
+    console.error("Error getting all colleges:", error);
+    throw error;
+  }
+};
+
+// ✅ Check if user is approved college
+export const checkCollegeApproval = async (uid) => {
+  try {
+    const college = await getCollegeByUID(uid);
+    return college ? college.status === 'approved' : false;
+  } catch (error) {
+    console.error("Error checking college approval:", error);
+    return false;
+  }
+};
+
+
+export const uploadImageToCloudinary = async (imageUri) => {
+  const CLOUD_NAME = "drrr99dz9";
+  const UPLOAD_PRESET = "react_native_uploads";
+
+
+  try {
+     
+
+      let data = new FormData();
+      data.append("file", {
+          uri: imageUri,
+          type: "image/jpeg",
+          name: "upload.jpg",
+      });
+      data.append("upload_preset", UPLOAD_PRESET);
+
+      const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          {
+              method: "POST",
+              body: data,
+          }
+      );
+
+      const result = await res.json();
+
+      alert(result.secure_url)
+
+      return result.secure_url; // 🔥 Cloudinary hosted URL
+
+  } catch (err) {
+      console.error("Cloudinary upload failed", err);
+      throw err;
+  }
+};
+
+

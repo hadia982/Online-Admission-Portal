@@ -2,23 +2,43 @@ import React from 'react'
 import Button from './Button'
 import { MdLogout } from "react-icons/md";
 import { MdDashboard } from "react-icons/md";
-import { FaHome, FaUserGraduate, FaStar, FaLock } from "react-icons/fa";
+import { FaHome, FaUserGraduate, FaStar, FaLock, FaUniversity } from "react-icons/fa";
 import { IoChatbubblesOutline, IoBookOutline, IoPersonCircleOutline } from "react-icons/io5";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../redux/Slices/HomeDataSlice';
+
 export default function Sidebar(props) {
-       const dispatch = useDispatch();
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state.home.user);
+    
     const handleLogout = () => {
         dispatch(setUser({}));
     }
 
     return (
-        <div style={{ height:635,backgroundColor: '#D9D9D9', border: '1px solid grey' }}>
-          
-            <div style={{ width: 225, height:40, backgroundColor: '#D9D9D9' }}>
-                <h2 style={{ color: '#003366', textAlign: 'center', fontWeight: 'bold' ,}}>College Dashboard</h2>
+        <div style={styles.sidebar}>
+            {/* Header */}
+            <div style={styles.header}>
+                <FaUniversity size={32} color="#003366" />
+                <div style={styles.headerText}>
+                    <h2 style={styles.title}>College Portal</h2>
+                    <p style={styles.subtitle}>Management Dashboard</p>
+                </div>
             </div>
-            <div style={{ width: 220, height: 524, backgroundColor: '#D9D9D9', marginTop:-9 }}>
+
+            {/* User Info */}
+            <div style={styles.userInfo}>
+                <div style={styles.userAvatar}>
+                    <FaUniversity size={24} color="#003366" />
+                </div>
+                <div style={styles.userDetails}>
+                    <h4 style={styles.userName}>{user?.email || 'College User'}</h4>
+                    <p style={styles.userRole}>College Admin</p>
+                </div>
+            </div>
+
+            {/* Navigation Menu */}
+            <div style={styles.menuContainer}>
                 <Button 
                     button="Dashboard"
                     url='ClgDashboard'
@@ -26,50 +46,144 @@ export default function Sidebar(props) {
                 />
                 <Button
                     button="Student Management"
-                    url= "StdMg"
+                    url="StdMg"
                     icon={<FaUserGraduate size={18} />}
                 />
                 <Button
                     button="Course Management"
-                      url='CourseMg'
+                    url='CourseMg'
                     icon={<IoBookOutline size={18} />}
                 />
                 <Button
-                    button="Chat/msg panel"
-                     url='Chat'
+                    button="Chat/Messages"
+                    url='Chat'
                     icon={<IoChatbubblesOutline size={18}/>}
                 />
                 <Button
-                    button="Profile management"
+                    button="Profile Management"
                     url='ProfileMg'
-
-                    icon={<IoPersonCircleOutline  size={18}/>}
+                    icon={<IoPersonCircleOutline size={18}/>}
                 />
-                   <Button
+                <Button
                     button="Success Stories"
                     url='SuccessS'
-
-                    icon={<FaStar   size={18}/>}
+                    icon={<FaStar size={18}/>}
                 />
-                        <Button
+                <Button
                     button="Status Display"
                     url='Status'
-
-                    icon={<MdDashboard  size={18}/>}
+                    icon={<MdDashboard size={18}/>}
                 />
-                            <Button
-                    button="Login /security"
+                <Button
+                    button="Security Settings"
                     url='Security'
-
-                    icon={<FaLock   size={18}/>}
+                    icon={<FaLock size={18}/>}
                 />
+            </div>
 
-
-<div style={{ width:"50%", height: 50, backgroundColor: '#D9D9D9', marginTop:35}}>
-                    <button onClick={handleLogout} style={{ position: 'absolute', padding: '5px', color: 'white', backgroundColor: '#003366', marginLeft: 10, }}><MdLogout /> Logout </button>
-                </div>
+            {/* Logout Section */}
+            <div style={styles.logoutSection}>
+                <button onClick={handleLogout} style={styles.logoutButton}>
+                    <MdLogout size={18} />
+                    Logout
+                </button>
+            </div>
         </div>
-        </div>
-
     )
 }
+
+// Modern sidebar styles matching the login page design
+const styles = {
+    sidebar: {
+        width: '250px',
+        height: '100vh',
+        backgroundColor: 'white',
+        borderRight: '1px solid #e1e5e9',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '2px 0 10px rgba(0, 0, 0, 0.1)',
+        fontFamily: 'Arial, sans-serif',
+    },
+    header: {
+        padding: '20px',
+        borderBottom: '1px solid #e1e5e9',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        backgroundColor: '#f8f9fa',
+    },
+    headerText: {
+        flex: 1,
+    },
+    title: {
+        color: '#003366',
+        fontSize: '18px',
+        fontWeight: 'bold',
+        margin: '0 0 2px 0',
+    },
+    subtitle: {
+        color: '#666',
+        fontSize: '12px',
+        margin: '0',
+    },
+    userInfo: {
+        padding: '15px 20px',
+        borderBottom: '1px solid #e1e5e9',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        backgroundColor: '#f8f9fa',
+    },
+    userAvatar: {
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+        backgroundColor: '#e3f2fd',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    userDetails: {
+        flex: 1,
+    },
+    userName: {
+        color: '#003366',
+        fontSize: '14px',
+        fontWeight: '600',
+        margin: '0 0 2px 0',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    userRole: {
+        color: '#666',
+        fontSize: '12px',
+        margin: '0',
+    },
+    menuContainer: {
+        flex: 1,
+        padding: '10px 0',
+        overflowY: 'auto',
+    },
+    logoutSection: {
+        padding: '15px 20px',
+        borderTop: '1px solid #e1e5e9',
+        backgroundColor: '#f8f9fa',
+    },
+    logoutButton: {
+        width: '100%',
+        backgroundColor: '#dc3545',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '12px',
+        fontSize: '14px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        transition: 'background-color 0.3s ease',
+    },
+};
