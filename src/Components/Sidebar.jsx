@@ -66,7 +66,7 @@ export default function Sidebar(props) {
                 />
                 <Button
                     button="Success Stories"
-                    url='SuccessS'
+                    url='SuccessStories'
                     icon={<FaStar size={18}/>}
                 />
                 <Button

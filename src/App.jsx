@@ -20,6 +20,7 @@ import Addnewstory from "./Pages/Addnewstory";
 import { useSelector } from "react-redux";
 import RegForm from "./Pages/RegForm";
 import StudentApplicationForm from "./Pages/StudentApplicationForm";
+import SuccessStories from "./Pages/SuccessStories";
 
 
 
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/Addnewstory" element={<Addnewstory />} />
               <Route path="/RegForm" element={<RegForm />} />
               <Route path="/student-application" element={<StudentApplicationForm />} />
+              <Route path="/SuccessStories" element={<SuccessStories />} />
               
               {/* Admin routes - redirect to college dashboard for now */}
               <Route path="/admin-dashboard" element={<ClgDashboard />} />

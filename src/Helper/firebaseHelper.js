@@ -219,20 +219,13 @@ export const checkCollegeApproval = async (uid) => {
 };
 
 
-export const uploadImageToCloudinary = async (imageUri) => {
+export const uploadImageToCloudinary = async (file) => {
   const CLOUD_NAME = "drrr99dz9";
   const UPLOAD_PRESET = "react_native_uploads";
 
-
   try {
-     
-
-      let data = new FormData();
-      data.append("file", {
-          uri: imageUri,
-          type: "image/jpeg",
-          name: "upload.jpg",
-      });
+      const data = new FormData();
+      data.append("file", file); // ✅ Just the File object directly
       data.append("upload_preset", UPLOAD_PRESET);
 
       const res = await fetch(
@@ -245,14 +238,18 @@ export const uploadImageToCloudinary = async (imageUri) => {
 
       const result = await res.json();
 
-      alert(result.secure_url)
+      if (!res.ok) {
+          console.error("Cloudinary upload failed", result);
+          throw new Error(result.error?.message || "Upload failed");
+      }
 
-      return result.secure_url; // 🔥 Cloudinary hosted URL
+      return result.secure_url;
 
   } catch (err) {
       console.error("Cloudinary upload failed", err);
       throw err;
   }
 };
+
 
 
