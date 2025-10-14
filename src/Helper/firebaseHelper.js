@@ -218,6 +218,181 @@ export const checkCollegeApproval = async (uid) => {
   }
 };
 
+//--------------------------------
+// 🔹 Admin-specific Services
+//--------------------------------
+
+// ✅ Get all colleges with admin details
+export const getAllCollegesForAdmin = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "colleges"));
+    const colleges = [];
+    querySnapshot.forEach((doc) => {
+      colleges.push({ id: doc.id, ...doc.data() });
+    });
+    return colleges;
+  } catch (error) {
+    console.error("Error getting all colleges for admin:", error);
+    throw error;
+  }
+};
+
+
+// ✅ Delete college
+export const deleteCollege = async (collegeId) => {
+  try {
+    await deleteDoc(doc(db, "colleges", collegeId));
+    console.log("College deleted successfully");
+    return true;
+  } catch (error) {
+    console.error("Error deleting college:", error);
+    throw error;
+  }
+};
+
+// ✅ Get college by ID for admin
+export const getCollegeByIdForAdmin = async (collegeId) => {
+  try {
+    const docRef = doc(db, "colleges", collegeId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    } else {
+      console.log("No college document found for ID:", collegeId);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting college by ID:", error);
+    throw error;
+  }
+};
+
+// ✅ Update college information
+export const updateCollegeInfo = async (collegeId, updateData) => {
+  try {
+    const docRef = doc(db, "colleges", collegeId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: serverTimestamp()
+    });
+    console.log("College information updated successfully");
+    return true;
+  } catch (error) {
+    console.error("Error updating college information:", error);
+    throw error;
+  }
+};
+
+// ✅ Get dashboard statistics
+export const getDashboardStats = async () => {
+  try {
+    const [colleges, courses, successStories, users, applications, admissions] = await Promise.all([
+      getAllData('colleges'),
+      getAllData('courses'),
+      getAllData('successStories'),
+      getAllData('users'),
+      getAllData('applications'),
+      getAllData('admissions')
+    ]);
+
+    return {
+      colleges: colleges?.length || 0,
+      courses: courses?.length || 0,
+      successStories: successStories?.length || 0,
+      users: users?.length || 0,
+      applications: applications?.length || 0,
+      admissions: admissions?.length || 0
+    };
+  } catch (error) {
+    console.error("Error getting dashboard stats:", error);
+    throw error;
+  }
+};
+
+//--------------------------------
+// 🔹 Role-based Authentication Services
+//--------------------------------
+
+// ✅ Get user role from users collection (for admin login)
+export const getUserRoleFromUsersCollection = async (uid) => {
+  try {
+    const docRef = doc(db, "users", uid);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      return {
+        uid: docSnap.id,
+        email: userData.email,
+        role: userData.role || 'user',
+        fName: userData.fName,
+        lName: userData.lName,
+        createdAt: userData.createdAt
+      };
+    } else {
+      console.log("No user document found for UID:", uid);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting user role from users collection:", error);
+    throw error;
+  }
+};
+
+// ✅ Get user role from colleges collection (for college login)
+export const getUserRoleFromCollegesCollection = async (uid) => {
+  try {
+    const docRef = doc(db, "colleges", uid);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const collegeData = docSnap.data();
+      return {
+        uid: docSnap.id,
+        email: collegeData.email,
+        role: 'college', // Always set role as 'college' for college users
+        collegeName: collegeData.collegeName,
+        status: collegeData.status,
+        city: collegeData.city,
+        state: collegeData.state,
+        createdAt: collegeData.createdAt
+      };
+    } else {
+      console.log("No college document found for UID:", uid);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting user role from colleges collection:", error);
+    throw error;
+  }
+};
+
+// ✅ Login with role detection (for admin)
+export const loginWithRoleDetection = async (email, password, userType = 'admin') => {
+  try {
+    // First authenticate with Firebase Auth
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Then fetch role from appropriate collection
+    let userData;
+    if (userType === 'admin') {
+      userData = await getUserRoleFromUsersCollection(user.uid);
+    } else if (userType === 'college') {
+      userData = await getUserRoleFromCollegesCollection(user.uid);
+    }
+    
+    if (!userData) {
+      throw new Error('User data not found in database');
+    }
+    
+    return userData;
+  } catch (error) {
+    console.error("Error in login with role detection:", error);
+    throw error;
+  }
+};
+
 
 export const uploadImageToCloudinary = async (file) => {
   const CLOUD_NAME = "drrr99dz9";

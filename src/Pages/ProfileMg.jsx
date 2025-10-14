@@ -39,7 +39,8 @@ function ProfileMg() {
         website: '',
         description: '',
         logoUrl: '',
-        registrationCertificateUrl: ''
+        registrationCertificateUrl: '',
+        facilities: ['Library', 'Sports Complex', 'Hostel', 'Wi-Fi Campus']
     });
     
     const [loading, setLoading] = useState(true);
@@ -76,7 +77,8 @@ function ProfileMg() {
                         website: data.website || '',
                         description: data.description || '',
                         logoUrl: data.logoUrl || '',
-                        registrationCertificateUrl: data.registrationCertificateUrl || ''
+                        registrationCertificateUrl: data.registrationCertificateUrl || '',
+                        facilities: data.facilities || ['Library', 'Sports Complex', 'Hostel', 'Wi-Fi Campus']
                     });
                 }
                 setLoading(false);
@@ -98,6 +100,31 @@ function ProfileMg() {
             [name]: value
         }));
         setError('');
+    };
+
+    // Handle facility change
+    const handleFacilityChange = (index, value) => {
+        setProfileData(prev => {
+            const facilities = [...prev.facilities];
+            facilities[index] = value;
+            return { ...prev, facilities };
+        });
+    };
+
+    // Add a new facility
+    const handleAddFacility = () => {
+        setProfileData(prev => ({
+            ...prev,
+            facilities: [...prev.facilities, '']
+        }));
+    };
+
+    // Remove a facility
+    const handleRemoveFacility = (index) => {
+        setProfileData(prev => {
+            const facilities = prev.facilities.filter((_, i) => i !== index);
+            return { ...prev, facilities };
+        });
     };
 
     // Handle file uploads
@@ -170,6 +197,7 @@ function ProfileMg() {
                 ...profileData,
                 logoUrl,
                 registrationCertificateUrl,
+                facilities: profileData.facilities,
                 updatedAt: serverTimestamp()
             });
 
@@ -468,6 +496,35 @@ function ProfileMg() {
                                 />
                             </div>
                         </div>
+                            {/* Facilities Section */}
+                            <div style={styles.section}>
+                                <h2 style={styles.sectionTitle}>
+                                    <FaCheck size={20} color="#003366" />
+                                    College Facilities
+                                </h2>
+                                {editing ? (
+                                    <div>
+                                        {profileData.facilities.map((facility, idx) => (
+                                            <div key={idx} style={{display: 'flex', alignItems: 'center', marginBottom: '8px'}}>
+                                                <input
+                                                    type="text"
+                                                    value={facility}
+                                                    onChange={e => handleFacilityChange(idx, e.target.value)}
+                                                    style={{fontSize: '16px', padding: '6px', marginRight: '8px', flex: 1}}
+                                                />
+                                                <button type="button" onClick={() => handleRemoveFacility(idx)} style={{padding: '4px 8px', color: '#fff', background: '#dc3545', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>Remove</button>
+                                            </div>
+                                        ))}
+                                        <button type="button" onClick={handleAddFacility} style={{padding: '6px 12px', color: '#fff', background: '#003366', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '8px'}}>Add Facility</button>
+                                    </div>
+                                ) : (
+                                    <ul style={{marginLeft: '20px', fontSize: '16px'}}>
+                                        {profileData.facilities.map((facility, idx) => (
+                                            <li key={idx}>{facility}</li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
 
                         {/* File Uploads */}
                         {editing && (

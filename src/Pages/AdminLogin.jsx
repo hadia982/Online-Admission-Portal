@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { loginWithFBase } from '../Helper/firebaseHelper';
+import { loginWithRoleDetection } from '../Helper/firebaseHelper';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/Slices/HomeDataSlice';
 import { FaShieldAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -23,13 +23,31 @@ function AdminLogin() {
 
         setLoading(true);
         try {
-            const userData = await loginWithFBase(email, password);
-            // Add role to user data
-            const userWithRole = { ...userData, role: 'admin' };
-            dispatch(setUser(userWithRole));
+            // Use role-based login for admin
+            const userData = await loginWithRoleDetection(email, password, 'admin');
+            
+            // Check if user has admin role
+            if (userData.role !== 'admin') {
+                alert("Access denied. This account does not have admin privileges.");
+                return;
+            }
+            
+            dispatch(setUser(userData));
             navigate("/admin-dashboard");
         } catch (error) {
-            alert("Login failed. Please check your credentials.");
+            let errorMessage = "Login failed. Please check your credentials.";
+            
+            if (error.message === 'User data not found in database') {
+                errorMessage = "Admin account not found. Please contact system administrator.";
+            } else if (error.code === 'auth/user-not-found') {
+                errorMessage = "No admin account found with this email address.";
+            } else if (error.code === 'auth/wrong-password') {
+                errorMessage = "Incorrect password. Please try again.";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = "Please enter a valid email address.";
+            }
+            
+            alert(errorMessage);
             console.error("Login error:", error);
         } finally {
             setLoading(false);
@@ -102,6 +120,12 @@ function AdminLogin() {
 
                     {/* Footer */}
                     <div style={styles.footer}>
+                        <p style={styles.signupText}>
+                            Don't have an admin account?{' '}
+                            <Link to="/admin-signup" style={styles.signupLink}>
+                                Create Account
+                            </Link>
+                        </p>
                         <div style={styles.backLink}>
                             <Link to="/" style={styles.backLinkText}>
                                 ← Back to College Login
@@ -238,6 +262,16 @@ const styles = {
     footer: {
         marginTop: '30px',
         textAlign: 'center',
+    },
+    signupText: {
+        color: '#666',
+        fontSize: '14px',
+        margin: '0 0 15px 0',
+    },
+    signupLink: {
+        color: '#dc3545',
+        textDecoration: 'none',
+        fontWeight: '600',
     },
     backLink: {
         marginTop: '15px',
