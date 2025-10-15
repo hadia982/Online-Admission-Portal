@@ -41,8 +41,6 @@ function CourseMg() {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [showApplications, setShowApplications] = useState(false);
-    const [showCourseDetails, setShowCourseDetails] = useState(false);
-    const [detailsCourse, setDetailsCourse] = useState(null);
 
     // Course form state with prefilled values for easier testing
     const [courseForm, setCourseForm] = useState({
@@ -338,13 +336,6 @@ function CourseMg() {
                                                 title="Delete Course"
                                             >
                                                 <FaTrash size={14} />
-                                            </button>
-                                            <button
-                                                onClick={() => { setDetailsCourse(course); setShowCourseDetails(true); }}
-                                                style={styles.viewButton}
-                                                title="View Details"
-                                            >
-                                                <FaEye size={14} /> View Details
                                             </button>
                                         </div>
                                     </div>
@@ -698,40 +689,6 @@ function CourseMg() {
                                 >
                                     Delete Course
                                 </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {/* Course Details Modal */}
-                {showCourseDetails && detailsCourse && (
-                    <div style={styles.modalOverlay}>
-                        <div style={styles.applicationsModal}>
-                            <div style={styles.modalHeader}>
-                                <h2>Course Details: {detailsCourse.title}</h2>
-                                <button
-                                    onClick={() => {
-                                        setShowCourseDetails(false);
-                                        setDetailsCourse(null);
-                                    }}
-                                    style={styles.closeButton}
-                                >
-                                    ×
-                                </button>
-                            </div>
-                            <div style={{padding: '20px'}}>
-                                <p><strong>Title:</strong> {detailsCourse.title}</p>
-                                <p><strong>Department:</strong> {detailsCourse.department}</p>
-                                <p><strong>Course Type:</strong> {detailsCourse.courseType}</p>
-                                <p><strong>Duration:</strong> {detailsCourse.duration}</p>
-                                <p><strong>Eligibility:</strong> {detailsCourse.eligibility}</p>
-                                <p><strong>Fees:</strong> ₹{detailsCourse.fees?.toLocaleString()}</p>
-                                <p><strong>Intake Capacity:</strong> {detailsCourse.intakeCapacity}</p>
-                                <p><strong>College ID:</strong> {detailsCourse.collegeId}</p>
-                                <p><strong>Admission Start:</strong> {formatDate(detailsCourse.admissionStart)}</p>
-                                <p><strong>Admission End:</strong> {formatDate(detailsCourse.admissionEnd)}</p>
-                                <p><strong>Created At:</strong> {formatDate(detailsCourse.createdAt)}</p>
-                                <p><strong>Updated At:</strong> {formatDate(detailsCourse.updatedAt)}</p>
-                                <p><strong>Description:</strong> {detailsCourse.description}</p>
                             </div>
                         </div>
                     </div>

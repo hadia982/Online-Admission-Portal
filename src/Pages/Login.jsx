@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { loginWithFBase, getCollegeByUID } from '../Helper/firebaseHelper';
+import { doc, getDoc } from 'firebase/firestore';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../redux/Slices/HomeDataSlice';
+import { setUser } from '../redux/Slices/userSlice'; // adjust path if different
 import { FaUniversity, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 function CollegeLogin() {
@@ -23,8 +24,17 @@ function CollegeLogin() {
 
         setLoading(true);
         try {
-            const userData = await loginWithFBase(email, password);
-            
+            const userCred = await loginWithFBase(email, password);
+            const uid = userCred.user.uid;
+
+            // fetch user profile from Firestore (so you have college details stored)
+            const userDocRef = doc(db, 'users', uid);
+            const userSnap = await getDoc(userDocRef);
+            const profile = userSnap.exists() ? userSnap.data() : {};
+
+            // store in redux so other pages (SuccessStories etc.) can read uid/collegeId
+            dispatch(setUser({ uid, ...profile }));
+
             // Check if college is approved
             const collegeData = await getCollegeByUID(userData.uid);
             
