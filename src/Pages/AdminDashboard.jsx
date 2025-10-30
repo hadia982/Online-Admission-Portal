@@ -160,13 +160,13 @@ const AdminDashboard = () => {
             color: '#ffc107',
             link: '/admin-success-stories'
         },
-        {
-            title: 'Users',
-            count: stats.users,
-            icon: FaUsers,
-            color: '#6f42c1',
-            link: '/admin-users'
-        },
+        // {
+        //     title: 'Users',
+        //     count: stats.users,
+        //     icon: FaUsers,
+        //     color: '#6f42c1',
+        //     link: '/admin-users'
+        // },
         {
             title: 'Applications',
             count: stats.applications,
@@ -174,13 +174,13 @@ const AdminDashboard = () => {
             color: '#fd7e14',
             link: '/admin-applications'
         },
-        {
-            title: 'Admissions',
-            count: stats.admissions,
-            icon: FaUserGraduate,
-            color: '#20c997',
-            link: '/admin-admissions'
-        }
+        // {
+        //     title: 'Admissions',
+        //     count: stats.admissions,
+        //     icon: FaUserGraduate,
+        //     color: '#20c997',
+        //     link: '/admin-admissions'
+        // }
     ];
 
     if (loading) {
