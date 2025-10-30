@@ -3,8 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { loginWithFBase, getCollegeByUID } from '../Helper/firebaseHelper';
 import { doc, getDoc } from 'firebase/firestore';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../redux/Slices/userSlice'; // adjust path if different
+// import { setUser } from '../redux/Slices/userSlice'; // adjust path if different
 import { FaUniversity, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { setUser } from '../redux/Slices/HomeDataSlice';
+import { db } from '../../firebase';
+
 
 function CollegeLogin() {
     const navigate = useNavigate();
@@ -15,20 +18,35 @@ function CollegeLogin() {
     const dispatch = useDispatch();
 
     const handleLogin = async (e) => {
+
+
         e.preventDefault();
         
         if (!email || !password) {
+            
             alert("Please enter both email and password");
             return;
         }
 
+
+        console.log(email, password);
+        
+
         setLoading(true);
         try {
             const userCred = await loginWithFBase(email, password);
-            const uid = userCred.user.uid;
+
+            console.log("userCred:", userCred);
+            
+            const uid = userCred.uid;
+
+            alert (uid )
+
+            // console.log("userCred:", userCred);
+            
 
             // fetch user profile from Firestore (so you have college details stored)
-            const userDocRef = doc(db, 'users', uid);
+            const userDocRef = doc(db, 'colleges', uid);
             const userSnap = await getDoc(userDocRef);
             const profile = userSnap.exists() ? userSnap.data() : {};
 
@@ -36,7 +54,7 @@ function CollegeLogin() {
             dispatch(setUser({ uid, ...profile }));
 
             // Check if college is approved
-            const collegeData = await getCollegeByUID(userData.uid);
+            const collegeData = await getCollegeByUID(uid);
             
             if (!collegeData) {
                 alert("College not found. Please register first.");

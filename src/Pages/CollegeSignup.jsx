@@ -141,6 +141,7 @@ function CollegeSignup() {
                 email: formData.email,
                 phone: formData.phone,
                 address: formData.address,
+                password: formData.password,
                 city: formData.city,
                 state: formData.state,
                 country: formData.country,

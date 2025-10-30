@@ -27,7 +27,7 @@ function Signup() {
             alert("Please fill all the fields");
             return;
         }
-        const userData = await handleSignUp(Email, Password, { role: "college", fName: fName, lName: lName })
+        const userData = await handleSignUp(Email, Password, { role: "college", fName: fName, lName: lName , Password:Password })
         if (userData?.uid) {
             dispatch(setUser(userData));
         }

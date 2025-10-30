@@ -34,7 +34,7 @@ import {
 function CourseMg() {
     const user = useSelector((state) => state.home.user);
     const [courses, setCourses] = useState([]);
-    const [applications, setApplications] = useState([]);
+    // const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingCourse, setEditingCourse] = useState(null);
