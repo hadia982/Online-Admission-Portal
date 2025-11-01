@@ -50,9 +50,6 @@ function CollegeLogin() {
             const userSnap = await getDoc(userDocRef);
             const profile = userSnap.exists() ? userSnap.data() : {};
 
-            // store in redux so other pages (SuccessStories etc.) can read uid/collegeId
-            dispatch(setUser({ uid, ...profile }));
-
             // Check if college is approved
             const collegeData = await getCollegeByUID(uid);
             
@@ -71,11 +68,11 @@ function CollegeLogin() {
                 return;
             }
             
-            // College is approved, proceed with login
+            // College is approved, proceed with login - store in redux with uid
             const userWithRole = { 
-                ...userData, 
-                role: 'college',
-                collegeData: collegeData
+                uid: uid, 
+                ...collegeData,
+                role: 'college'
             };
             dispatch(setUser(userWithRole));
             navigate("/ClgDashboard");

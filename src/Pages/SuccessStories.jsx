@@ -33,8 +33,11 @@ function SuccessStories() {
     const [message, setMessage] = useState('');
 
     // get collegeId from redux (fallback to provided example id)
-    const collegeIdFromState = useSelector(state => state?.home?.user?.uid);
-    const collegeId = collegeIdFromState || "LoBPS6SN6uY0AE9IE1iieMXWhDA3";
+    const userState = useSelector(state => state.home.user);
+    const collegeId = userState?.uid;
+    
+    console.log("Full state.home.user:", userState);
+    console.log("Using collegeId:", collegeId);
 
     // Firestore collection reference
     const storiesCollectionRef = collection(db, 'successStories');
@@ -43,16 +46,33 @@ function SuccessStories() {
     const fetchStories = async () => {
         setLoading(true);
         try {
+            console.log('Fetching stories for collegeId:', collegeId);
             const q = query(
                 storiesCollectionRef,
                 where('collegeId', '==', collegeId),
                 orderBy('createdAt', 'desc')
             );
             const data = await getDocs(q);
-            setStories(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+            const fetchedStories = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+            console.log('Fetched stories:', fetchedStories);
+            setStories(fetchedStories);
         } catch (err) {
             console.error('Error fetching stories:', err);
-            setStories([]);
+            // Try without orderBy in case of index issue
+            try {
+                console.log('Trying without orderBy...');
+                const qBasic = query(
+                    storiesCollectionRef,
+                    where('collegeId', '==', collegeId)
+                );
+                const data = await getDocs(qBasic);
+                const fetchedStories = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+                console.log('Fetched stories (no order):', fetchedStories);
+                setStories(fetchedStories);
+            } catch (e) {
+                console.error('Error in fallback fetch:', e);
+                setStories([]);
+            }
         } finally {
             setLoading(false);
         }
