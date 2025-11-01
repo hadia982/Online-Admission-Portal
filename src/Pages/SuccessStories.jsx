@@ -19,7 +19,7 @@ import {
 } from 'firebase/storage';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaUserGraduate } from 'react-icons/fa';
 import { uploadImageToCloudinary } from '../Helper/firebaseHelper';
-import { useSelector } from 'react-redux'; // added import
+import { useSelector } from 'react-redux'; // <-- added import
 
 function SuccessStories() {
     // State variables
@@ -31,8 +31,19 @@ function SuccessStories() {
     const [studentPhoto, setStudentPhoto] = useState(null);
     const [message, setMessage] = useState('');
 
-    // get collegeId from redux (fallback to example id)
-    const collegeId = useSelector(state => state?.user?.uid);
+    // read collegeId from redux with fallbacks (null if not available)
+    const reduxState = useSelector(state => state);
+    const collegeId = reduxState?.user?.uid
+        || reduxState?.user?.collegeId
+        || reduxState?.auth?.user?.uid
+        || reduxState?.auth?.uid
+        || null;
+
+    useEffect(() => {
+        if (!collegeId) {
+            console.warn('SuccessStories: collegeId is not available in redux state. New stories will store null for collegeId.', reduxState);
+        }
+    }, [collegeId, reduxState]);
 
     // Firestore collection reference
     const storiesCollectionRef = collection(db, 'successStories');
@@ -78,37 +89,39 @@ function SuccessStories() {
             return;
         }
 
-        
-        
-
         try {
             let studentPhotoUrl = editingStory ? editingStory.studentPhotoUrl : '';
 
             // If a new photo is uploaded, upload it to Cloudinary
             if (studentPhoto) {
                 studentPhotoUrl = await uploadImageToCloudinary(studentPhoto);
-                // alert(studentPhotoUrl) // optional
             }
 
+            // build story object
             const storyData = {
                 ...storyForm,
                 studentPhotoUrl,
-                collegeId, // added collegeId so each story is tied to the posting college
+                collegeId, // may be null
                 updatedAt: serverTimestamp()
             };
 
+            // remove undefined fields because Firestore rejects undefined
+            const sanitized = Object.entries(storyData).reduce((acc, [k, v]) => {
+                if (v !== undefined) acc[k] = v;
+                return acc;
+            }, {});
 
-            console.log("storyData", storyData);
+            console.log("storyData (sanitized)", sanitized);
 
             if (editingStory) {
                 // Update existing story
                 const storyDoc = doc(db, 'successStories', editingStory.id);
-                await updateDoc(storyDoc, storyData);
+                await updateDoc(storyDoc, sanitized);
                 showTempMessage('Success story updated successfully!');
             } else {
                 // Add new story
-                storyData.createdAt = serverTimestamp();
-                await addDoc(storiesCollectionRef, storyData);
+                sanitized.createdAt = serverTimestamp();
+                await addDoc(storiesCollectionRef, sanitized);
                 showTempMessage('Success story added successfully!');
             }
 
