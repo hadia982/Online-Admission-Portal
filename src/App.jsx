@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, } from "react-router-dom";
 import ClgDashboard from "./Pages/ClgDashboard";
 import StdMg from "./Pages/StdMg";
@@ -27,6 +26,8 @@ import { useSelector } from "react-redux";
 import RegForm from "./Pages/RegForm";
 import StudentApplicationForm from "./Pages/StudentApplicationForm";
 import SuccessStories from "./Pages/SuccessStories";
+import AdminSuccessStories from "./Pages/AdminSuccessStories";
+import AdminApplications from "./Pages/AdminApplications";
 
 
 
@@ -44,9 +45,9 @@ export default function App() {
             <AdminSidebar />
 
             {/* Main content area */}
-            <div style={{ 
-              flex: 1, 
-              minWidth: 0, 
+            <div style={{
+              flex: 1,
+              minWidth: 0,
               marginLeft: "250px",
               background: "#f5f5f5",
               overflow: 'auto',
@@ -57,13 +58,15 @@ export default function App() {
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/admin-colleges" element={<AdminColleges />} />
                 <Route path="/admin-courses" element={<AdminCourses />} />
-                <Route path="/admin-success-stories" element={<div>Admin Success Stories - Coming Soon</div>} />
+                <Route path="/admin-success-stories" element={<AdminSuccessStories />} />
+                <Route path="/admin-applications" element={<AdminApplications />} />
+
                 <Route path="/admin-users" element={<div>Admin Users - Coming Soon</div>} />
-                <Route path="/admin-applications" element={<div>Admin Applications - Coming Soon</div>} />
                 <Route path="/admin-admissions" element={<div>Admin Admissions - Coming Soon</div>} />
-                
+
                 {/* Redirect admin to dashboard */}
                 <Route path="*" element={<AdminDashboard />} />
+
               </Routes>
             </div>
           </div>
@@ -71,14 +74,14 @@ export default function App() {
           // College Dashboard
           <div style={{ display: "flex", height: "100vh" }}>
             {/* Sidebar fix */}
-            <div style={{ width: "250px"}}>
+            <div style={{ width: "250px" }}>
               <Sidebar />
             </div>
 
             {/* Main content area */}
-            <div style={{ 
-              flex: 1, 
-              minWidth: 0, 
+            <div style={{
+              flex: 1,
+              minWidth: 0,
               width: 'calc(100vw - 250px)',
               background: "#f5f5f5",
               overflow: 'auto',
@@ -101,7 +104,7 @@ export default function App() {
                 <Route path="/RegForm" element={<RegForm />} />
                 <Route path="/student-application" element={<StudentApplicationForm />} />
                 <Route path="/SuccessStories" element={<SuccessStories />} />
-                
+
                 {/* Redirect to college dashboard */}
                 <Route path="*" element={<ClgDashboard />} />
               </Routes>
@@ -113,19 +116,19 @@ export default function App() {
         <Routes>
           {/* Default route - College Login */}
           <Route path="/" element={<CollegeLogin />} />
-          
+
           {/* Admin login */}
           <Route path="/admin" element={<AdminLogin />} />
-          
+
           {/* Admin signup */}
           <Route path="/admin-signup" element={<AdminSignup />} />
-          
+
           {/* Test data setup */}
           <Route path="/test-setup" element={<TestDataSetup />} />
-          
+
           {/* Signup */}
           <Route path="/Signup" element={<CollegeSignup />} />
-          
+
           {/* Redirect all other routes to college login */}
           <Route path="*" element={<CollegeLogin />} />
         </Routes>

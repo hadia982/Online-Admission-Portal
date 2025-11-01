@@ -20,7 +20,7 @@ import {
 } from 'firebase/storage';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaUserGraduate } from 'react-icons/fa';
 import { uploadImageToCloudinary } from '../Helper/firebaseHelper';
-import { useSelector } from 'react-redux'; // <-- added import
+import { useSelector } from 'react-redux'; // added import
 
 function SuccessStories() {
     // State variables
@@ -32,8 +32,12 @@ function SuccessStories() {
     const [studentPhoto, setStudentPhoto] = useState(null);
     const [message, setMessage] = useState('');
 
-    // get collegeId from redux (fallback to example id)
-    const collegeId = useSelector(state => state?.user?.uid);
+    // get collegeId from redux (fallback to provided example id)
+    const userState = useSelector(state => state.home.user);
+    const collegeId = userState?.uid;
+    
+    console.log("Full state.home.user:", userState);
+    console.log("Using collegeId:", collegeId);
 
     // Firestore collection reference
     const storiesCollectionRef = collection(db, 'successStories');
@@ -42,16 +46,33 @@ function SuccessStories() {
     const fetchStories = async () => {
         setLoading(true);
         try {
+            console.log('Fetching stories for collegeId:', collegeId);
             const q = query(
                 storiesCollectionRef,
                 where('collegeId', '==', collegeId),
                 orderBy('createdAt', 'desc')
             );
             const data = await getDocs(q);
-            setStories(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+            const fetchedStories = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+            console.log('Fetched stories:', fetchedStories);
+            setStories(fetchedStories);
         } catch (err) {
             console.error('Error fetching stories:', err);
-            setStories([]);
+            // Try without orderBy in case of index issue
+            try {
+                console.log('Trying without orderBy...');
+                const qBasic = query(
+                    storiesCollectionRef,
+                    where('collegeId', '==', collegeId)
+                );
+                const data = await getDocs(qBasic);
+                const fetchedStories = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+                console.log('Fetched stories (no order):', fetchedStories);
+                setStories(fetchedStories);
+            } catch (e) {
+                console.error('Error in fallback fetch:', e);
+                setStories([]);
+            }
         } finally {
             setLoading(false);
         }
@@ -72,7 +93,8 @@ function SuccessStories() {
 
     // Handle file input change
     const handleFileChange = (e) => {
-        if (e.target.files[0]) {
+        if (e.target.files[
+            0]) {
             setStudentPhoto(e.target.files[0]);
         }
     };
@@ -91,39 +113,37 @@ function SuccessStories() {
             return;
         }
 
+        
+        
+
         try {
             let studentPhotoUrl = editingStory ? editingStory.studentPhotoUrl : '';
 
             // If a new photo is uploaded, upload it to Cloudinary
             if (studentPhoto) {
                 studentPhotoUrl = await uploadImageToCloudinary(studentPhoto);
+                // alert(studentPhotoUrl) // optional
             }
 
-            // build story object
             const storyData = {
                 ...storyForm,
                 studentPhotoUrl,
-                collegeId, // may be null
+                collegeId, // added collegeId so each story is tied to the posting college
                 updatedAt: serverTimestamp()
             };
 
-            // remove undefined fields because Firestore rejects undefined
-            const sanitized = Object.entries(storyData).reduce((acc, [k, v]) => {
-                if (v !== undefined) acc[k] = v;
-                return acc;
-            }, {});
 
-            console.log("storyData (sanitized)", sanitized);
+            console.log("storyData", storyData);
 
             if (editingStory) {
                 // Update existing story
                 const storyDoc = doc(db, 'successStories', editingStory.id);
-                await updateDoc(storyDoc, sanitized);
+                await updateDoc(storyDoc, storyData);
                 showTempMessage('Success story updated successfully!');
             } else {
                 // Add new story
-                sanitized.createdAt = serverTimestamp();
-                await addDoc(storiesCollectionRef, sanitized);
+                storyData.createdAt = serverTimestamp();
+                await addDoc(storiesCollectionRef, storyData);
                 showTempMessage('Success story added successfully!');
             }
 
