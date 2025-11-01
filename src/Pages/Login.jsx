@@ -11,8 +11,8 @@ import { db } from '../../firebase';
 
 function CollegeLogin() {
     const navigate = useNavigate();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("c1@lutech.edu.pk");
+    const [password, setPassword] = useState("password123");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();

@@ -9,7 +9,8 @@ import {
     deleteDoc, 
     serverTimestamp, 
     query, 
-    orderBy 
+    orderBy,
+    where 
 } from 'firebase/firestore';
 import { 
     ref, 
@@ -31,19 +32,8 @@ function SuccessStories() {
     const [studentPhoto, setStudentPhoto] = useState(null);
     const [message, setMessage] = useState('');
 
-    // read collegeId from redux with fallbacks (null if not available)
-    const reduxState = useSelector(state => state);
-    const collegeId = reduxState?.user?.uid
-        || reduxState?.user?.collegeId
-        || reduxState?.auth?.user?.uid
-        || reduxState?.auth?.uid
-        || null;
-
-    useEffect(() => {
-        if (!collegeId) {
-            console.warn('SuccessStories: collegeId is not available in redux state. New stories will store null for collegeId.', reduxState);
-        }
-    }, [collegeId, reduxState]);
+    // get collegeId from redux (fallback to example id)
+    const collegeId = useSelector(state => state?.user?.uid);
 
     // Firestore collection reference
     const storiesCollectionRef = collection(db, 'successStories');
@@ -51,16 +41,28 @@ function SuccessStories() {
     // Fetch stories from Firestore
     const fetchStories = async () => {
         setLoading(true);
-        const q = query(storiesCollectionRef, orderBy('createdAt', 'desc'));
-        const data = await getDocs(q);
-        setStories(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-        setLoading(false);
+        try {
+            const q = query(
+                storiesCollectionRef,
+                where('collegeId', '==', collegeId),
+                orderBy('createdAt', 'desc')
+            );
+            const data = await getDocs(q);
+            setStories(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+        } catch (err) {
+            console.error('Error fetching stories:', err);
+            setStories([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
     // useEffect to fetch stories on component mount
     useEffect(() => {
-        fetchStories();
-    }, []);
+        if (collegeId) {
+            fetchStories();
+        }
+    }, [collegeId]);
 
     // Function to show a temporary message
     const showTempMessage = (msg) => {

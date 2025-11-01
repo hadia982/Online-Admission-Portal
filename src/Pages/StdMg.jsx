@@ -1,30 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../firebase';
-import { collection, getDocs, query, orderBy, updateDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, updateDoc, doc, where } from 'firebase/firestore';
+import { useSelector } from 'react-redux';
 
 function StdMg() {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedApp, setSelectedApp] = useState(null);
+    const loggedInCollegeId = useSelector(state => state?.home?.user?.uid) || '';
 
-    // Fetch all applications (no collegeId filter)
+    // Fetch applications for the logged-in college only
     useEffect(() => {
         const fetchApplications = async () => {
+            if (!loggedInCollegeId) {
+                setApplications([]);
+                setLoading(false);
+                return;
+            }
             setLoading(true);
             try {
                 const appsRef = collection(db, 'applications');
-                // order by appliedAt if available, otherwise no ordering
-                const q = query(appsRef, orderBy('appliedAt', 'desc'));
+                // Primary: filter by collegeId and order by appliedAt (may require composite index)
+                const q = query(
+                    appsRef,
+                    where('collegeId', '==', loggedInCollegeId),
+                    orderBy('appliedAt', 'desc')
+                );
                 const snapshot = await getDocs(q);
                 setApplications(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
             } catch (err) {
-                console.error('Failed to fetch applications:', err);
-                // fallback: try simple getDocs without orderBy
+                console.error('Failed to fetch applications with orderBy (maybe missing index):', err);
+                // Fallback: just filter by collegeId without ordering
                 try {
-                    const snapshot = await getDocs(collection(db, 'applications'));
+                    const qBasic = query(
+                        collection(db, 'applications'),
+                        where('collegeId', '==', loggedInCollegeId)
+                    );
+                    const snapshot = await getDocs(qBasic);
                     setApplications(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
                 } catch (e) {
-                    console.error('Fallback fetch failed:', e);
+                    console.error('Fallback filtered fetch failed:', e);
                     setApplications([]);
                 }
             } finally {
@@ -32,7 +47,7 @@ function StdMg() {
             }
         };
         fetchApplications();
-    }, []);
+    }, [loggedInCollegeId]);
 
     const handleViewForm = (app) => {
         setSelectedApp(app);
@@ -56,7 +71,7 @@ function StdMg() {
 
     return (
         <div style={{ padding: '2rem' }}>
-            <h2>Student Applications (All Colleges)</h2>
+            <h2>Student Applications (Your College)</h2>
             {applications.length === 0 ? (
                 <p>No applications found.</p>
             ) : (
