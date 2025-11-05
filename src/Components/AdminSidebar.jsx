@@ -54,24 +54,24 @@ const AdminSidebar = () => {
             label: 'Success Stories',
             color: '#ffc107'
         },
-        {
-            path: '/admin-users',
-            icon: FaUsers,
-            label: 'Users',
-            color: '#6f42c1'
-        },
+        // {
+        //     path: '/admin-users',
+        //     icon: FaUsers,
+        //     label: 'Users',
+        //     color: '#6f42c1'
+        // },
         {
             path: '/admin-applications',
             icon: FaFileAlt,
             label: 'Applications',
             color: '#fd7e14'
         },
-        {
-            path: '/admin-admissions',
-            icon: FaUserGraduate,
-            label: 'Admissions',
-            color: '#20c997'
-        }
+        // {
+        //     path: '/admin-admissions',
+        //     icon: FaUserGraduate,
+        //     label: 'Admissions',
+        //     color: '#20c997'
+        // }
     ];
 
     const isActive = (path) => location.pathname === path;

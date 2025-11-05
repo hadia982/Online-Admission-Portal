@@ -1,4 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react';
+import { auth } from '../../firebase'; // use your firebase auth export; or replace with getAuth()
+import {
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword,
+  sendPasswordResetEmail
+} from 'firebase/auth';
 import { Link } from 'react-router-dom'
 import { PiKeyLight } from "react-icons/pi";
 import { FaEye } from "react-icons/fa";
@@ -7,6 +14,79 @@ import { FaChrome, FaSafari, FaFirefox } from "react-icons/fa";
 import { MdPhoneAndroid } from "react-icons/md";
 import { MdOutlineWarningAmber } from "react-icons/md";
 function Security() {
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+
+    const clearStatus = () => { setMessage(''); setError(''); };
+
+    const handleChangePassword = async (e) => {
+      e.preventDefault();
+      clearStatus();
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        setError('Fill all fields.');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setError('New password and confirmation do not match.');
+        return;
+      }
+      if (newPassword.length < 6) {
+        setError('Password must be at least 6 characters.');
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        setError('No authenticated user. Please login again.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        // Re-authenticate
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+
+        // Update password
+        await updatePassword(user, newPassword);
+        setMessage('Password changed successfully.');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } catch (err) {
+        console.error('Change password error:', err);
+        // Common errors: auth/wrong-password, auth/too-many-requests, auth/requires-recent-login
+        setError(err.code ? `${err.code} - ${err.message}` : String(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Alternative: send password reset email if user forgot current password
+    const handleSendReset = async () => {
+      clearStatus();
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        setError('No authenticated user to send reset email for.');
+        return;
+      }
+      setLoading(true);
+      try {
+        await sendPasswordResetEmail(auth, user.email);
+        setMessage('Password reset email sent to ' + user.email);
+      } catch (err) {
+        console.error('Send reset email error:', err);
+        setError(err.code ? `${err.code} - ${err.message}` : String(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+
     return (
         <div>
             <Link to="/StdMg"></Link>

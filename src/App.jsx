@@ -6,7 +6,7 @@ import SuccessS from "./Pages/SuccessS";
 import ProfileMg from "./Pages/ProfileMg";
 import Chat from "./Pages/Chat";
 import Security from "./Pages/Security";
-import Status from "./Pages/Status";
+// import Status from "./Pages/Status";
 import CollegeLogin from "./Pages/Login";
 import AdminLogin from "./Pages/AdminLogin";
 import AdminSignup from "./Pages/AdminSignup";
@@ -61,8 +61,8 @@ export default function App() {
                 <Route path="/admin-success-stories" element={<AdminSuccessStories />} />
                 <Route path="/admin-applications" element={<AdminApplications />} />
 
-                <Route path="/admin-users" element={<div>Admin Users - Coming Soon</div>} />
-                <Route path="/admin-admissions" element={<div>Admin Admissions - Coming Soon</div>} />
+                {/* <Route path="/admin-users" element={<div>Admin Users - Coming Soon</div>} />
+                <Route path="/admin-admissions" element={<div>Admin Admissions - Coming Soon</div>} /> */}
 
                 {/* Redirect admin to dashboard */}
                 <Route path="*" element={<AdminDashboard />} />
@@ -96,7 +96,7 @@ export default function App() {
                 <Route path="/ProfileMg" element={<ProfileMg />} />
                 <Route path="/Chat" element={<Chat />} />
                 <Route path="/Security" element={<Security />} />
-                <Route path="/Status" element={<Status />} />
+                {/* <Route path="/Status" element={<Status />} /> */}
                 <Route path="/form" element={<Form />} />
                 <Route path="/CourseStatus" element={<CourseStatus />} />
                 <Route path="/Addnewcourse" element={<Addnewcourse />} />
