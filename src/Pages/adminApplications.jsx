@@ -6,6 +6,7 @@ function AdminApplications() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const formatDate = (ts) => {
     if (!ts) return '';
@@ -51,11 +52,27 @@ function AdminApplications() {
   if (error) return <div style={{ padding: 20, color: 'red' }}>{error}</div>;
   if (applications.length === 0) return <div style={{ padding: 20 }}>No applications found.</div>;
 
+  const visibleApps = applications.filter(app => {
+    if (!searchTerm.trim()) return true;
+    const q = searchTerm.trim().toLowerCase();
+    const name = (app.collegeName || '').toLowerCase();
+    return name.includes(q);
+  });
+
   return (
     <div style={{ padding: 20, fontFamily: 'Arial, sans-serif' }}>
       <h2>All Student Applications</h2>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        <input
+          type="text"
+          placeholder="Search by college name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ padding: '8px 12px', width: 300, border: '2px solid #e1e5e9', borderRadius: 8 }}
+        />
+      </div>
       <div style={{ display: 'grid', gap: 12 }}>
-        {applications.map(app => (
+        {visibleApps.map(app => (
           <div key={app.id} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <strong>{app.firstName} {app.lastName}</strong>

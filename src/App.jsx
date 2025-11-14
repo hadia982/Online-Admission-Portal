@@ -48,6 +48,7 @@ export default function App() {
             <div style={{
               flex: 1,
               minWidth: 0,
+              width: 'calc(100vw - 250px)',
               marginLeft: "250px",
               background: "#f5f5f5",
               overflow: 'auto',
