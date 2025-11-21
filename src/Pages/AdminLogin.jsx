@@ -100,8 +100,10 @@ function AdminLogin() {
                             </div>
                         </div>
 
+                        {/* http://localhost:5173/forgot-password */}
+
                         <div style={styles.forgotPassword}>
-                            <Link to="/admin-forgot-password" style={styles.forgotLink}>
+                            <Link to="/forgot-password" style={styles.forgotLink}>
                                 Forgot Password?
                             </Link>
                         </div>

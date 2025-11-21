@@ -27,7 +27,9 @@ import RegForm from "./Pages/RegForm";
 import StudentApplicationForm from "./Pages/StudentApplicationForm";
 import SuccessStories from "./Pages/SuccessStories";
 import AdminSuccessStories from "./Pages/AdminSuccessStories";
-import AdminApplications from "./Pages/AdminApplications";
+import AdminApplications from "./Pages/adminApplications";
+import ForgotPassword from "./Pages/ForgotPassword";
+import ResetPassword from "./Pages/ResetPassword";
 
 
 
@@ -117,6 +119,8 @@ export default function App() {
         <Routes>
           {/* Default route - College Login */}
           <Route path="/" element={<CollegeLogin />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Admin login */}
           <Route path="/admin" element={<AdminLogin />} />

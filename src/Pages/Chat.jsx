@@ -1,155 +1,157 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import { MdAccountCircle } from "react-icons/md";
 import { MdCall, MdVideocam, MdMoreVert } from "react-icons/md";
+import { db } from '../../firebase'
+import { collection, doc, onSnapshot, orderBy, query, addDoc, serverTimestamp } from 'firebase/firestore'
 
 function Chat() {
+    const user = useSelector((state) => state.home.user)
+    const uid = user?.uid
+    const [chats, setChats] = useState([])
+    const [search, setSearch] = useState('')
+    const [selectedChatId, setSelectedChatId] = useState('')
+    const [selectedChatUsers, setSelectedChatUsers] = useState([])
+    const [messages, setMessages] = useState([])
+    const [newMessage, setNewMessage] = useState('')
+    const [loadingChats, setLoadingChats] = useState(true)
+
+    useEffect(() => {
+        const q = query(collection(db, 'chats'), orderBy('createdAt', 'desc'))
+        const unsub = onSnapshot(q, (snap) => {
+            setChats(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+            setLoadingChats(false)
+        }, () => setLoadingChats(false))
+        return () => unsub()
+    }, [])
+
+    useEffect(() => {
+        if (!selectedChatId) return
+        const messagesRef = collection(db, 'chats', selectedChatId, 'messages')
+        const q = query(messagesRef, orderBy('createdAt', 'asc'))
+        const unsub = onSnapshot(q, (snap) => {
+            setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+        })
+        return () => unsub()
+    }, [selectedChatId])
+
+    const selectChat = (chat) => {
+        setSelectedChatId(chat.id)
+        setSelectedChatUsers(chat.users || [])
+    }
+
+    const otherUserId = useMemo(() => {
+        if (!uid || !selectedChatUsers?.length) return ''
+        const others = selectedChatUsers.filter(u => u !== uid)
+        return others[0] || ''
+    }, [uid, selectedChatUsers])
+
+    const handleSend = async (e) => {
+        e.preventDefault()
+        if (!uid || !selectedChatId || !newMessage.trim()) return
+        try {
+            const messagesRef = collection(db, 'chats', selectedChatId, 'messages')
+            await addDoc(messagesRef, {
+                text: newMessage.trim(),
+                senderId: uid,
+                recipientId: otherUserId,
+                createdAt: serverTimestamp()
+            })
+            setNewMessage('')
+        } catch (err) {
+            console.error('Send message error:', err)
+        }
+    }
+
+    const filteredChats = chats.filter(c => {
+        if (!search.trim()) return true
+        const q = search.trim().toLowerCase()
+        const idText = (c.id || '').toLowerCase()
+        return idText.includes(q)
+    })
+
     return (
         <div>
             <Link to="/SuccessS"> </Link>
-            <a href="SuccessS">
-                <div style={{ height: 635, width: 1120, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ height: 635, width: 400, backgroundColor: "white", border: '1px solid grey' }}>
-                        <div style={{ height: 70, width: 400, backgroundColor: "white", gap: '5px' }}>
-                            <h3 style={{ margin: 0, color: '#003366' }}>Messages</h3>
-                            <input type="text" placeholder="search conversation" style={{ padding: '5px', width: 370, borderRadius: '10px', height: 20 }} />
-                        </div>
-
-                        <div style={{ height: 560, width: 400, backgroundColor: "white" }}>
-                            <div style={{ height: 70, width: 400, backgroundColor: "white", gap: '0px', display: "flex", display: "flex", justifyContent: "space-between", alignItems: "center", border: '1px solid grey', borderRadius: 10, }}>
-
-                                <div style={{ display: 'flex' }}>
-                                    <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                        <MdAccountCircle size={40} color='#003366' />
-                                    </div>
-                                    <div style={{ height: 70, width: 200, backgroundColor: "white", }}>
-                                        <h3 style={{ marginTop: '10px', color: 'black' }}>Jhon smith</h3>
-                                        <h5 style={{ marginTop: '-20px', color: 'grey' }}>what docmument do i need....</h5>
-                                    </div>
-                                </div>
-                                <div style={{ height: 70, width: 100, backgroundColor: "white" }}>
-                                    <h6 style={{ marginTop: '10px', color: 'black', marginRight: '10px', textAlign: 'right' }}>10:35 AM</h6>
-
-                                </div>
-                            </div>
-                            <div style={{ height: 70, width: 400, backgroundColor: "white", gap: '0px', display: "flex", display: "flex", justifyContent: "space-between", alignItems: "center", border: '1px solid grey', borderRadius: 10 }}>
-                                <div style={{ display: 'flex' }}>
-                                    <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                        <MdAccountCircle size={40} color='#003366' />
-                                    </div>
-                                    <div style={{ height: 70, width: 200, backgroundColor: "white", }}>
-                                        <h3 style={{ marginTop: '10px', color: 'black' }}>David</h3>
-                                        <h5 style={{ marginTop: '-20px', color: 'grey' }}>i submit my application</h5>
-                                    </div>
-                                </div>
-                                <div style={{ height: 70, width: 100, backgroundColor: "white" }}>
-                                    <h6 style={{ marginTop: '10px', color: 'black', marginRight: '10px', textAlign: 'right' }}>10:35 AM</h6>
-
-                                </div>
-                            </div>
-                            <div style={{ height: 70, width: 400, backgroundColor: "white", gap: '0px', display: "flex", display: "flex", justifyContent: "space-between", alignItems: "center", border: '1px solid grey', borderRadius: 10 }}>
-                                <div style={{ display: 'flex' }}>
-                                    <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                        <MdAccountCircle size={40} color='#003366' />
-                                    </div>
-                                    <div style={{ height: 70, width: 200, backgroundColor: "white", }}>
-                                        <h3 style={{ marginTop: '10px', color: 'black' }}>Alex</h3>
-                                        <h5 style={{ marginTop: '-20px', color: 'grey' }}>when is the deadline?</h5>
-                                    </div>
-                                </div>
-                                <div style={{ height: 70, width: 100, backgroundColor: "white" }}>
-                                    <h6 style={{ marginTop: '10px', color: 'black', marginRight: '10px', textAlign: 'right' }}>11:00 AM</h6>
-
-                                </div>
-                            </div>
-                            <div style={{ height: 70, width: 400, backgroundColor: "white", gap: '0px', display: "flex", display: "flex", justifyContent: "space-between", alignItems: "center", border: '1px solid grey', borderRadius: 10 }}>
-                                <div style={{ display: 'flex' }}>
-                                    <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                        <MdAccountCircle size={40} color='#003366' />
-                                    </div>
-                                    <div style={{ height: 70, width: 200, backgroundColor: "white", }}>
-                                        <h3 style={{ marginTop: '10px', color: 'black' }}>Hadia</h3>
-                                        <h5 style={{ marginTop: '-20px', color: 'grey' }}>thank uh for your help</h5>
-                                    </div>
-                                </div>
-                                <div style={{ height: 70, width: 100, backgroundColor: "white" }}>
-                                    <h6 style={{ marginTop: '10px', color: 'black', marginRight: '10px', textAlign: 'right' }}>07:11 AM</h6>
-
-                                </div>
-                            </div>
-                        </div>
+            <div style={{ height: 635, width: 1120, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "stretch" }}>
+                <div style={{ height: '100%', width: 400, backgroundColor: "white", border: '1px solid #e1e5e9', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: 12, borderBottom: '1px solid #e1e5e9' }}>
+                        <h3 style={{ margin: 0, color: '#003366' }}>Messages</h3>
+                        <input
+                            type="text"
+                            placeholder="Search chats by ID"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            style={{ padding: '8px', width: '100%', borderRadius: 8, border: '2px solid #e1e5e9', marginTop: 8 }}
+                        />
                     </div>
-                    <div style={{ height: 640, width: 717, backgroundColor: "white" }}>
-                        <div style={{ height: 70, width: 715, backgroundColor: "white", gap: '0px', display: "flex", display: "flex", justifyContent: "space-between", alignItems: "center", border: '1px solid grey', borderRadius: 10 }}>
-                            <div style={{ display: 'flex' }}>
-                                <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <MdAccountCircle size={40} color='#003366' />
+                    <div style={{ flex: 1, overflowY: 'auto' }}>
+                        {loadingChats ? (
+                            <div style={{ padding: 12 }}>Loading...</div>
+                        ) : filteredChats.length === 0 ? (
+                            <div style={{ padding: 12, color: '#666' }}>No chats found</div>
+                        ) : (
+                            filteredChats.map(chat => (
+                                <div key={chat.id} onClick={() => selectChat(chat)} style={{ cursor: 'pointer', padding: 12, borderBottom: '1px solid #e1e5e9', backgroundColor: selectedChatId === chat.id ? '#f1f7ff' : 'white' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <MdAccountCircle size={28} color='#003366' />
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 600, color: '#333' }}>Chat: {chat.id}</div>
+                                            <div style={{ fontSize: 12, color: '#666' }}>Users: {(chat.users || []).join(', ')}</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style={{ height: 70, width: 200, backgroundColor: "white", }}>
-                                    <h3 style={{ marginTop: '10px', color: 'black' }}>Hadia</h3>
-                                    <h5 style={{ marginTop: '-20px', color: 'grey' }}>Online</h5>
-                                </div>
-                            </div>
-                            <div style={{ height: 70, width: 200, backgroundColor: "white", display: 'flex', justifyContent: "space-around", alignItems: "center" }}>
-                                <MdCall size={30} color="grey" />
-                                <MdVideocam size={30} color="grey" />
-                                <MdMoreVert size={30} color="grey" />
-                            </div>
-                        </div>
-                        <div style={{ height: 90, width: 715, backgroundColor: "white", marginTop: "3px" }}>
-
-                            <div style={{ display: 'flex' }}>
-                                <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <MdAccountCircle size={40} color='#003366' />
-                                </div>
-                                <div style={{ height: 70, width: 300, backgroundColor: "white", border: "2px solid grey", borderRadius: 10, }}>
-                                    <h3 style={{ marginTop: '10px', color: 'black' }}>hey!i have a question about admission process.</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div style={{ height: 90, width: 715, backgroundColor: "white" }}>
-                            <div style={{ display: 'flex', justifyContent: "flex-end", marginBottom: "10px" }}>
-                                <div style={{ height: 70, Width: 300, backgroundColor: "#67a3deff", border: "2px solid grey", borderRadius: "10px", padding: "0px", marginRight: "-1px" }}>
-                                    <h3 style={{ marginTop: '10px', color: 'black', fontSize: "14px" }}>sure!i'll be happy to help uh.what kind of info do uh need?</h3>
-                                </div>
-                                <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                                    <MdAccountCircle size={40} color='#003366' />
-                                </div>
-                            </div>
-
-
-                        </div>
-                        <div style={{ height: 90, width: 715, backgroundColor: "white", marginTop: "3px" }}>
-
-                            <div style={{ display: 'flex' }}>
-                                <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <MdAccountCircle size={40} color='#003366' />
-                                </div>
-                                <div style={{ height: 70, width: 300, backgroundColor: "white", border: "2px solid grey", borderRadius: 10, }}>
-                                    <h3 style={{ marginTop: '10px', color: 'black' }}>what docmuments do i need to submit for admission?</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div style={{ height: 90, width: 715, backgroundColor: "white" }}>
-                            <div style={{ display: 'flex', justifyContent: "flex-end", marginBottom: "10px" }}>
-                                <div style={{ height: 70, Width: 300, backgroundColor: "#67a3deff", border: "2px solid grey", borderRadius: "10px", padding: "0px", marginRight: "-1px" }}>
-                                    <h3 style={{ marginTop: '10px', color: 'black', fontSize: "14px" }}>You need National Identity Card (CNIC) / B-Form,Previous Academic Certificates,Character Certificate etc</h3>
-                                </div>
-                                <div style={{ height: 70, width: 55, backgroundColor: "white", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                                    <MdAccountCircle size={40} color='#003366' />
-                                </div>
-                            </div>
-
-
-                        </div>
-
-
+                            ))
+                        )}
                     </div>
                 </div>
 
+                <div style={{ height: '100%', width: 717, backgroundColor: "white", border: '1px solid #e1e5e9', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: 12, borderBottom: '1px solid #e1e5e9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <MdAccountCircle size={32} color='#003366' />
+                            <div>
+                                <div style={{ fontWeight: 700, color: '#333' }}>{selectedChatId ? `Chat ${selectedChatId}` : 'Select a chat'}</div>
+                                <div style={{ fontSize: 12, color: '#666' }}>{selectedChatUsers.length ? `With: ${selectedChatUsers.join(', ')}` : ''}</div>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 12 }}>
+                            <MdCall size={24} color="grey" />
+                            <MdVideocam size={24} color="grey" />
+                            <MdMoreVert size={24} color="grey" />
+                        </div>
+                    </div>
 
+                    <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+                        {!selectedChatId ? (
+                            <div style={{ color: '#666' }}>Choose a chat from the left to view messages.</div>
+                        ) : messages.length === 0 ? (
+                            <div style={{ color: '#666' }}>No messages yet.</div>
+                        ) : (
+                            messages.map(m => (
+                                <div key={m.id} style={{ display: 'flex', justifyContent: m.senderId === uid ? 'flex-end' : 'flex-start', marginBottom: 8 }}>
+                                    <div style={{ maxWidth: 420, backgroundColor: m.senderId === uid ? '#e8f0fe' : '#ffffff', border: '1px solid #e1e5e9', borderRadius: 10, padding: '8px 12px' }}>
+                                        <div style={{ fontSize: 14, color: '#333' }}>{m.text}</div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
 
-            </a>
+                    <form onSubmit={handleSend} style={{ borderTop: '1px solid #e1e5e9', padding: 12, display: 'flex', gap: 8 }}>
+                        <input
+                            type="text"
+                            placeholder={uid ? "Type a message" : "Login to send messages"}
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            disabled={!uid || !selectedChatId}
+                            style={{ flex: 1, padding: '10px 12px', borderRadius: 8, border: '2px solid #e1e5e9' }}
+                        />
+                        <button type="submit" disabled={!uid || !selectedChatId || !newMessage.trim()} style={{ backgroundColor: "#003366", color: "white", border: 'none', borderRadius: 8, padding: '10px 16px', fontWeight: 600 }}>Send</button>
+                    </form>
+                </div>
+            </div>
         </div>
     )
 }
