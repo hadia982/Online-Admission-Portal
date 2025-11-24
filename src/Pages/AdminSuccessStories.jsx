@@ -6,6 +6,7 @@ function AdminSuccessStories() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [collegesById, setCollegesById] = useState({});
 
   const formatDate = (ts) => {
     if (!ts) return '';
@@ -47,6 +48,22 @@ function AdminSuccessStories() {
     return () => { mounted = false; };
   }, []);
 
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'colleges'));
+        const map = {};
+        snap.forEach(d => {
+          const data = d.data();
+          map[d.id] = data.collegeName || data.name || '';
+        });
+        setCollegesById(map);
+      } catch (e) {
+      }
+    };
+    fetchColleges();
+  }, []);
+
   if (loading) return <div style={{ padding: 20 }}>Loading success stories...</div>;
   if (error) return <div style={{ padding: 20, color: 'red' }}>{error}</div>;
   if (stories.length === 0) return <div style={{ padding: 20 }}>No success stories found.</div>;
@@ -70,7 +87,7 @@ function AdminSuccessStories() {
               <p style={{ margin: '0 0 8px', color: '#333' }}>{story.storyText || ''}</p>
               <div style={{ fontSize: 13, color: '#666', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <div><strong>College ID:</strong> {story.collegeId || '—'}</div>
-                {story.collegeName && <div><strong>College:</strong> {story.collegeName}</div>}
+                <div><strong>College:</strong> {collegesById[story.collegeId] || story.collegeName || '—'}</div>
                 <div><strong>Created:</strong> {formatDate(story.createdAt)}</div>
                 <div><strong>Updated:</strong> {formatDate(story.updatedAt)}</div>
                 <div><strong>Doc ID:</strong> {story.id}</div>
