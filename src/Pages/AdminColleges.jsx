@@ -141,12 +141,6 @@ const AdminColleges = () => {
                     <h1 style={styles.title}>Colleges Management</h1>
                     <p style={styles.subtitle}>Manage all registered colleges</p>
                 </div>
-                <div style={styles.headerActions}>
-                    <button style={styles.exportButton}>
-                        <FaDownload size={16} />
-                        Export
-                    </button>
-                </div>
             </div>
 
             {/* Filters */}
@@ -285,25 +279,33 @@ const AdminColleges = () => {
                                     Edit
                                 </Link>
 
-                                {college.status === 'pending' && (
-                                    <button
-                                        onClick={() => handleStatusChange(college.id, 'approved')}
-                                        style={{...styles.actionButton, backgroundColor: '#28a745'}}
-                                    >
-                                        <FaCheck size={14} />
-                                        Approve
-                                    </button>
-                                )}
+                                <button
+                                    onClick={() => handleStatusChange(college.id, 'approved')}
+                                    disabled={college.status === 'approved'}
+                                    style={{
+                                        ...styles.actionButton,
+                                        backgroundColor: '#28a745',
+                                        opacity: college.status === 'approved' ? 0.6 : 1,
+                                        cursor: college.status === 'approved' ? 'default' : 'pointer'
+                                    }}
+                                >
+                                    <FaCheck size={14} />
+                                    Approve
+                                </button>
 
-                                {college.status === 'approved' && (
-                                    <button
-                                        onClick={() => handleStatusChange(college.id, 'rejected')}
-                                        style={{...styles.actionButton, backgroundColor: '#dc3545'}}
-                                    >
-                                        <FaTimes size={14} />
-                                        Reject
-                                    </button>
-                                )}
+                                <button
+                                    onClick={() => handleStatusChange(college.id, 'rejected')}
+                                    disabled={college.status === 'rejected'}
+                                    style={{
+                                        ...styles.actionButton,
+                                        backgroundColor: '#dc3545',
+                                        opacity: college.status === 'rejected' ? 0.6 : 1,
+                                        cursor: college.status === 'rejected' ? 'default' : 'pointer'
+                                    }}
+                                >
+                                    <FaTimes size={14} />
+                                    Reject
+                                </button>
 
                                 <button
                                     onClick={() => handleDeleteCollege(college.id, college.collegeName)}

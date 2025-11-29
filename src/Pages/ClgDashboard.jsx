@@ -165,6 +165,17 @@ function ClgDashboard() {
         return now >= start && now <= end;
     };
 
+    const getAdmissionStatus = (startDate, endDate) => {
+        const now = new Date();
+        const start = startDate?.toDate?.() || new Date(startDate);
+        const end = endDate?.toDate?.() || new Date(endDate);
+        // alert (now , end \)
+        if (!start || isNaN(start) || !end || isNaN(end)) return 'Not set';
+        if (now < start) return 'Upcoming';
+        if (now > end) return 'Closed';
+        return 'Open';
+    };
+
     // Format date for display
     const formatDate = (date) => {
         if (!date) return 'Not set';
@@ -307,19 +318,25 @@ function ClgDashboard() {
                                     </span>
                                 </div>
                                 <div style={styles.tableCell}>
-                                    <span style={{
-                                        ...styles.statusBadge,
-                                        backgroundColor: isAdmissionOpen(course.admissionStart, course.admissionEnd) 
-                                            ? '#d4edda' 
-                                            : '#f8d7da',
-                                        color: isAdmissionOpen(course.admissionStart, course.admissionEnd) 
-                                            ? '#155724' 
-                                            : '#721c24'
-                                    }}>
-                                        {isAdmissionOpen(course.admissionStart, course.admissionEnd) 
-                                            ? 'Open' 
-                                            : 'Closed'}
-                                    </span>
+                                    {(() => {
+                                        const status = getAdmissionStatus(course.admissionStart, course.admissionEnd);
+                                        const styleMap = {
+                                            Open: { bg: '#d4edda', fg: '#155724' },
+                                            Upcoming: { bg: '#fff3cd', fg: '#856404' },
+                                            Closed: { bg: '#f8d7da', fg: '#721c24' },
+                                            'Not set': { bg: '#e2e3e5', fg: '#6c757d' }
+                                        };
+                                        const colors = styleMap[status] || styleMap['Not set'];
+                                        return (
+                                            <span style={{
+                                                ...styles.statusBadge,
+                                                backgroundColor: colors.bg,
+                                                color: colors.fg
+                                            }}>
+                                                {status}
+                                            </span>
+                                        );
+                                    })()}
                                 </div>
                                 <div style={styles.tableCell}>
                                     <div style={styles.actionButtons}>

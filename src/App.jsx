@@ -12,6 +12,7 @@ import AdminLogin from "./Pages/AdminLogin";
 import AdminSignup from "./Pages/AdminSignup";
 import AdminDashboard from "./Pages/AdminDashboard";
 import AdminColleges from "./Pages/AdminColleges";
+import AdminCollegeEdit from "./Pages/AdminCollegeEdit";
 import AdminCourses from "./Pages/AdminCourses";
 import TestDataSetup from "./Pages/TestDataSetup";
 import Signup from "./Pages/Signup";
@@ -60,6 +61,7 @@ export default function App() {
                 {/* Admin routes */}
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/admin-colleges" element={<AdminColleges />} />
+                <Route path="/admin-colleges/edit/:id" element={<AdminCollegeEdit />} />
                 <Route path="/admin-courses" element={<AdminCourses />} />
                 <Route path="/admin-success-stories" element={<AdminSuccessStories />} />
                 <Route path="/admin-applications" element={<AdminApplications />} />
