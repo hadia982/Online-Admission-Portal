@@ -60,7 +60,7 @@ function AdminLogin() {
                 <div style={styles.loginCard}>
                     {/* Header */}
                     <div style={styles.header}>
-                        <FaShieldAlt size={40} color="#dc3545" />
+                        <FaShieldAlt size={40} color="#1a419cff" />
                         <h1 style={styles.title}>Admin Portal</h1>
                         <p style={styles.subtitle}>Administrative access only</p>
                     </div>
@@ -179,14 +179,14 @@ const styles = {
         padding: '40px',
         width: '100%',
         maxWidth: '400px',
-        border: '2px solid #dc3545',
+        border: '2px solid #3f3ddcff',
     },
     header: {
         textAlign: 'center',
         marginBottom: '30px',
     },
     title: {
-        color: '#dc3545',
+        color:  '#2137dbff',
         fontSize: '28px',
         fontWeight: 'bold',
         margin: '10px 0 5px 0',
@@ -246,12 +246,12 @@ const styles = {
         textAlign: 'right',
     },
     forgotLink: {
-        color: '#dc3545',
+        color: '#2137dbff',
         textDecoration: 'none',
         fontSize: '14px',
     },
     loginButton: {
-        backgroundColor: '#dc3545',
+        backgroundColor: '#071bb5ff',
         color: 'white',
         border: 'none',
         borderRadius: '8px',
@@ -271,7 +271,7 @@ const styles = {
         margin: '0 0 15px 0',
     },
     signupLink: {
-        color: '#dc3545',
+        color: '#2137dbff',
         textDecoration: 'none',
         fontWeight: '600',
     },
@@ -306,7 +306,7 @@ const styles = {
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'linear-gradient(135deg, rgba(220, 53, 69, 0.8), rgba(220, 53, 69, 0.6))',
+        background: 'linear-gradient(135deg, rgba(22, 51, 165, 0.8), rgba(20, 32, 199, 0.6))',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',

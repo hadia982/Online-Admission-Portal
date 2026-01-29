@@ -34,25 +34,25 @@ const AdminSidebar = () => {
             path: '/admin-dashboard',
             icon: FaTachometerAlt,
             label: 'Dashboard',
-            color: '#dc3545'
+            color: '#003366'
         },
         {
             path: '/admin-colleges',
             icon: FaUniversity,
             label: 'Colleges',
-            color: '#007bff'
+            color: '#003366'
         },
         {
             path: '/admin-courses',
             icon: FaGraduationCap,
             label: 'Courses',
-            color: '#28a745'
+            color: '#003366'
         },
         {
             path: '/admin-success-stories',
             icon: FaTrophy,
             label: 'Success Stories',
-            color: '#ffc107'
+            color: '#003366'
         },
         // {
         //     path: '/admin-users',
@@ -64,7 +64,7 @@ const AdminSidebar = () => {
             path: '/admin-applications',
             icon: FaFileAlt,
             label: 'Applications',
-            color: '#fd7e14'
+            color: '#003366'
         },
         // {
         //     path: '/admin-admissions',
@@ -85,7 +85,7 @@ const AdminSidebar = () => {
             <div style={styles.header}>
                 {!isCollapsed && (
                     <div style={styles.logoContainer}>
-                        <FaUniversity size={24} color="#dc3545" />
+                        <FaUniversity size={24} color="#003366" />
                         <span style={styles.logoText}>Admin Portal</span>
                     </div>
                 )}
@@ -170,7 +170,7 @@ const styles = {
     logoText: {
         fontSize: '18px',
         fontWeight: 'bold',
-        color: '#dc3545'
+        color: '#003366'
     },
     toggleButton: {
         background: 'none',
@@ -216,7 +216,7 @@ const styles = {
         alignItems: 'center',
         gap: '12px',
         padding: '12px 20px',
-        backgroundColor: '#dc3545',
+        backgroundColor: '#003366',
         color: 'white',
         border: 'none',
         borderRadius: '8px',

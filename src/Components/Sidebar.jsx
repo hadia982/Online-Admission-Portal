@@ -149,7 +149,7 @@ export default function Sidebar(props) {
      },
      logoutButton: {
          width: '100%',
-         backgroundColor: '#dc3545',
+         backgroundColor: '#003366',
          color: 'white',
          border: 'none',
          borderRadius: '8px',

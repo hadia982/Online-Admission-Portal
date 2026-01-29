@@ -40,7 +40,7 @@ function CollegeLogin() {
             
             const uid = userCred.uid;
 
-            alert (uid )
+            // alert (uid )
 
             // console.log("userCred:", userCred);
             

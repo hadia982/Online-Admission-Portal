@@ -28,7 +28,7 @@ import RegForm from "./Pages/RegForm";
 import StudentApplicationForm from "./Pages/StudentApplicationForm";
 import SuccessStories from "./Pages/SuccessStories";
 import AdminSuccessStories from "./Pages/AdminSuccessStories";
-import AdminApplications from "./Pages/adminApplications";
+import AdminApplications from "./Pages/AdminApplications";
 import ForgotPassword from "./Pages/ForgotPassword";
 import ResetPassword from "./Pages/ResetPassword";
 
